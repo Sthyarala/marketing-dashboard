@@ -34,18 +34,18 @@ Full-stack demo showing CSV ingestion, multi-tenant data isolation, and reportin
 To run the full-stack dashboard locally, follow these steps:
 
 ### 1. Start the Backend
-Open a terminal and navigate to the backend folder:
-cd backend
-npm install
-npm run dev
-The backend API will be running on: http://localhost:5000
+- Open a terminal and navigate to the backend folder:
+- cd backend
+- npm install
+- npm run dev
+- The backend API will be running on: http://localhost:5000
 
 ### 1. Start the Frontend
-Open a terminal and navigate to the backend folder:
-cd Frontend
-npm install
-npm run dev
-The frontend will be available at: http://localhost:3000
+- Open a terminal and navigate to the backend folder:
+- cd Frontend
+- npm install
+- npm run dev
+- The frontend will be available at: http://localhost:3000
 
 ## API Endpoints
 - GET /api/users
