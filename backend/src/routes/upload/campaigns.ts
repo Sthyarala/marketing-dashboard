@@ -89,6 +89,11 @@ router.post('/', upload.single('file'), async (req, res) => {
           date
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (location_id, campaign_name, channel, date)
+        DO UPDATE SET
+          spend = EXCLUDED.spend,
+          clicks = EXCLUDED.clicks,
+          conversions = EXCLUDED.conversions
         `,
         [
           locationId,

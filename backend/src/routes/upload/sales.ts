@@ -72,6 +72,10 @@ router.post('/', upload.single('file'), async (req, res) => {
         INSERT INTO sales
           (location_id, product_category, revenue, quantity, date)
         VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (location_id, product_category, date)
+        DO UPDATE SET
+          revenue = EXCLUDED.revenue,
+          quantity = EXCLUDED.quantity
         `,
         [
           locationId,

@@ -14,7 +14,6 @@ export default function DashboardPage() {
   const { user, setUser } = useUser();
   const [tab, setTab] = useState<Tab>('campaigns');
 
-  // 🔑 used to trigger table refreshes
   const [refreshKey, setRefreshKey] = useState(0);
 
   if (!user) return <div>Please select a user first</div>;
