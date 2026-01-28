@@ -65,6 +65,8 @@ router.post('/', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('Leads upload error:', error);
     res.status(500).json({ message: 'Error processing leads CSV' });
+  } finally {
+    fs.unlinkSync(req.file.path);
   }
 });
 

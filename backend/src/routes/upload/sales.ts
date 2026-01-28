@@ -87,6 +87,8 @@ router.post('/', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('Sales upload error:', error);
     res.status(500).json({ message: 'Error processing sales CSV' });
+  } finally {
+    fs.unlinkSync(req.file.path);
   }
 });
 

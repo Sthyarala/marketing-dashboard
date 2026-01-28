@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import jwt from 'jsonwebtoken';
 import { errorHandler } from './middleware/errorHandler';
 import campaignsRoutes from './routes/upload/campaigns';
 import leadsRoutes from './routes/upload/leads';
@@ -34,22 +33,6 @@ app.use('/api/users', usersRouter);
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Backend is running' });
-});
-
-//Temp to get token
-app.get('/debug-token', (_req, res) => {
-  const token = jwt.sign(
-    {
-      id: 1,
-      role: 'Brand User',      // try: brand | company
-      brand: 'Acme',
-      company: 'Acme Downtown LLC'
-    },
-    process.env.JWT_SECRET!,
-    { expiresIn: '1h' }
-  );
-
-  res.json({ token });
 });
 
 // Error handling

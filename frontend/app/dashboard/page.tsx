@@ -11,7 +11,7 @@ import UploadCsv from '@/components/UploadCsv';
 type Tab = 'campaigns' | 'leads' | 'sales' | 'roi' | 'upload';
 
 export default function DashboardPage() {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const [tab, setTab] = useState<Tab>('campaigns');
 
   // 🔑 used to trigger table refreshes
@@ -27,7 +27,21 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1>Dashboard</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1>Dashboard</h1>
+        <button
+          onClick={() => setUser(null)}
+          style={{
+            padding: '8px 16px',
+            cursor: 'pointer',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            background: '#f5f5f5',
+          }}
+        >
+          Switch User ({user.name})
+        </button>
+      </div>
 
       <div style={{ marginBottom: 20 }}>
         {(['campaigns', 'leads', 'sales', 'roi', 'upload'] as Tab[]).map(t => (
