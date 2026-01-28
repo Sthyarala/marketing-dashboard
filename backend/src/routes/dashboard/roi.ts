@@ -7,19 +7,6 @@ router.get('/', async (req, res) => {
   try {
     const { brandId, companyId } = req.query;
 
-    let query = `
-      SELECT
-        c.name AS company_name,
-        COALESCE(SUM(cam.spend), 0) AS total_spend,
-        COALESCE(SUM(s.revenue), 0) AS total_revenue,
-        COALESCE(SUM(s.revenue), 0) - COALESCE(SUM(cam.spend), 0) AS roi
-      FROM companies c
-      JOIN brands b ON c.brand_id = b.id
-      LEFT JOIN locations l ON l.company_id = c.id
-      LEFT JOIN campaigns cam ON cam.location_id = l.id
-      LEFT JOIN sales s ON s.location_id = l.id
-    `;
-
     const conditions: string[] = [];
     const params: (number | string)[] = [];
 
@@ -31,8 +18,31 @@ router.get('/', async (req, res) => {
       conditions.push(`b.id = $${params.length}`);
     }
 
-    if (conditions.length) query += ` WHERE ${conditions.join(' AND ')}`;
-    query += ' GROUP BY c.name ORDER BY roi DESC';
+    const whereClause = conditions.length ? ` WHERE ${conditions.join(' AND ')}` : '';
+
+    const query = `
+      SELECT
+        c.name AS company_name,
+        COALESCE(cam_totals.total_spend, 0) AS total_spend,
+        COALESCE(sales_totals.total_revenue, 0) AS total_revenue,
+        COALESCE(sales_totals.total_revenue, 0) - COALESCE(cam_totals.total_spend, 0) AS roi
+      FROM companies c
+      JOIN brands b ON c.brand_id = b.id
+      LEFT JOIN (
+        SELECT l.company_id, SUM(cam.spend) AS total_spend
+        FROM campaigns cam
+        JOIN locations l ON cam.location_id = l.id
+        GROUP BY l.company_id
+      ) cam_totals ON cam_totals.company_id = c.id
+      LEFT JOIN (
+        SELECT l.company_id, SUM(s.revenue) AS total_revenue
+        FROM sales s
+        JOIN locations l ON s.location_id = l.id
+        GROUP BY l.company_id
+      ) sales_totals ON sales_totals.company_id = c.id
+      ${whereClause}
+      ORDER BY roi DESC
+    `;
 
     const result = await pool.query(query, params);
 
