@@ -87,6 +87,8 @@ curl -X POST -F "file=@leads.csv" http://localhost:5000/upload/leads
 curl -X POST -F "file=@sales.csv" http://localhost:5000/upload/sales
 ```
 
+Adjust brandId and companyId values to match your database. For uploads, run from the directory containing your CSV files.
+
 ## Key Decisions and Trade-offs
 
 - **Removed Authentication for Simplicity**
