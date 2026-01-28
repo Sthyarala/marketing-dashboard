@@ -9,9 +9,12 @@ const upload = multer({ dest: 'uploads/' });
 router.post('/', upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
+  const client = await pool.connect();
   try {
     const data = fs.readFileSync(req.file.path, 'utf-8');
     const lines = data.split('\n').slice(1); // skip CSV header
+
+    await client.query('BEGIN');
 
     for (const line of lines) {
       if (!line.trim()) continue;
@@ -28,21 +31,21 @@ router.post('/', upload.single('file'), async (req, res) => {
       ] = line.split(',');
 
       // Insert or update brand
-      const brandResult = await pool.query(
+      const brandResult = await client.query(
         'INSERT INTO brands(name) VALUES($1) ON CONFLICT(name) DO UPDATE SET name=EXCLUDED.name RETURNING id',
         [brandName]
       );
       const brandId = brandResult.rows[0].id;
 
       // Insert or update company
-      const companyResult = await pool.query(
+      const companyResult = await client.query(
         'INSERT INTO companies(name, brand_id) VALUES($1, $2) ON CONFLICT(name, brand_id) DO UPDATE SET name=EXCLUDED.name RETURNING id',
         [companyName, brandId]
       );
       const companyId = companyResult.rows[0].id;
 
       // Insert or update location (using locationId as name temporarily)
-      const locationResult = await pool.query(
+      const locationResult = await client.query(
         `INSERT INTO locations(external_id, name, company_id)
          VALUES($1, $2, $3)
          ON CONFLICT(external_id)
@@ -53,7 +56,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       const locId = locationResult.rows[0].id;
 
       // Insert lead
-      await pool.query(
+      await client.query(
         `INSERT INTO leads(location_id, name, email, lead_source, status, date)
          VALUES($1, $2, $3, $4, $5, $6)
          ON CONFLICT(location_id, email) DO NOTHING`,
@@ -61,11 +64,14 @@ router.post('/', upload.single('file'), async (req, res) => {
       );
     }
 
+    await client.query('COMMIT');
     res.json({ message: 'Leads CSV uploaded successfully' });
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Leads upload error:', error);
     res.status(500).json({ message: 'Error processing leads CSV' });
   } finally {
+    client.release();
     fs.unlinkSync(req.file.path);
   }
 });

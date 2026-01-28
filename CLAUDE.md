@@ -68,7 +68,7 @@ Brand (e.g., "Acme")
 
 **Dashboard Refresh:** Parent component (`dashboard/page.tsx`) manages `refreshKey` state variable. Tables receive this as React key to force remounts after CSV uploads.
 
-**Backend Routes:** Parameterized SQL with conditional WHERE clauses for brand/company filtering. Routes organized by resource under `/dashboard` and `/upload`.
+**Backend Routes:** Parameterized SQL with conditional WHERE clauses for brand/company filtering. Routes organized by resource under `/dashboard` and `/upload`. Upload routes use database transactions (`BEGIN`/`COMMIT`/`ROLLBACK`) via a dedicated client from the pool — if any row fails, the entire upload is rolled back.
 
 **API Base URL:** Frontend hardcodes `http://localhost:5000` in component fetch calls.
 
@@ -87,8 +87,9 @@ Brand (e.g., "Acme")
 - Authentication removed for demo simplicity
 - All data tables are client components using `useEffect` for fetching
 - CSV upload determines endpoint from filename pattern
-- CSV uploads use UPSERT (`ON CONFLICT`) to prevent duplicate data:
+- CSV uploads are transactional (all-or-nothing) and use UPSERT (`ON CONFLICT`) to prevent duplicate data:
   - Campaigns: unique on `(location_id, campaign_name, channel, date)`
   - Leads: unique on `(location_id, email)`
   - Sales: unique on `(location_id, product_category, date)`
+- ROI query aggregates campaigns and sales in separate subqueries before joining to avoid fan-out inflation
 - User switching is available via button in the dashboard header

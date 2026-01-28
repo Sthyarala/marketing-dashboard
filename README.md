@@ -120,7 +120,7 @@ Adjust brandId and companyId values to match your database. For uploads, run fro
   *Trade-off:* No real authentication; user context must be manually managed.
 
 - **CSV Upload Handling**
-  Uploads are handled by `UploadCsv` component with dynamic POST endpoints per table. Duplicate uploads are handled via UPSERT (`ON CONFLICT`) with unique constraints per table.
+  Uploads are handled by `UploadCsv` component with dynamic POST endpoints per table. Each upload runs in a database transaction (`BEGIN`/`COMMIT`/`ROLLBACK`) — if any row fails, the entire upload is rolled back. Duplicate uploads are handled via UPSERT (`ON CONFLICT`) with unique constraints per table. Temp files are cleaned up after processing.
   *Trade-off:* Simplifies testing and demonstration but not production-ready.
 
 - **Simplified Frontend Data Fetching**  

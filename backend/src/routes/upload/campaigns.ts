@@ -11,9 +11,12 @@ router.post('/', upload.single('file'), async (req, res) => {
     return res.status(400).json({ message: 'No file uploaded' });
   }
 
+  const client = await pool.connect();
   try {
     const data = fs.readFileSync(req.file.path, 'utf-8');
     const lines = data.split('\n').slice(1); // skip CSV header
+
+    await client.query('BEGIN');
 
     for (const line of lines) {
       if (!line.trim()) continue;
@@ -31,7 +34,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       ] = line.split(',').map(v => v.trim());
 
       /* ------------------ Brand ------------------ */
-      const brandResult = await pool.query(
+      const brandResult = await client.query(
         `
         INSERT INTO brands (name)
         VALUES ($1)
@@ -44,7 +47,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       const brandId = brandResult.rows[0].id;
 
       /* ------------------ Company ------------------ */
-      const companyResult = await pool.query(
+      const companyResult = await client.query(
         `
         INSERT INTO companies (name, brand_id)
         VALUES ($1, $2)
@@ -57,7 +60,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       const companyId = companyResult.rows[0].id;
 
       /* ------------------ Location ------------------ */
-      const locationResult = await pool.query(
+      const locationResult = await client.query(
         `
         INSERT INTO locations (external_id, name, company_id)
         VALUES ($1, $2, $3)
@@ -77,7 +80,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       // CSV is MM/DD/YYYY → Postgres wants YYYY-MM-DD
       const parsedDate = new Date(dateStr);
 
-      await pool.query(
+      await client.query(
         `
         INSERT INTO campaigns (
           location_id,
@@ -107,11 +110,14 @@ router.post('/', upload.single('file'), async (req, res) => {
       );
     }
 
+    await client.query('COMMIT');
     res.json({ message: 'Campaigns CSV uploaded successfully' });
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Campaigns upload error:', error);
     res.status(500).json({ message: 'Error processing campaigns CSV' });
   } finally {
+    client.release();
     fs.unlinkSync(req.file.path);
   }
 });
