@@ -31,6 +31,9 @@ Runs on http://localhost:3000
 
 This is a full-stack multi-tenant marketing dashboard (take-home assessment project) with separated backend and frontend.
 
+### Database Schema
+Full pg_dump schema is in `schema.sql` at the project root. Tables: `brands`, `companies`, `locations`, `campaigns`, `leads`, `sales`, `users`. There are also `staging_campaigns`, `staging_leads`, `staging_sales` tables (not used by application code).
+
 ### Data Hierarchy
 ```
 Brand (e.g., "Acme")
@@ -67,7 +70,7 @@ Brand (e.g., "Acme")
 
 **Backend Routes:** Parameterized SQL with conditional WHERE clauses for brand/company filtering. Routes organized by resource under `/dashboard` and `/upload`.
 
-**API Base URL:** Frontend hardcodes `http://localhost:5000` in `lib/api.ts`.
+**API Base URL:** Frontend hardcodes `http://localhost:5000` in component fetch calls.
 
 ### Dashboard Tabs
 - **Campaigns** — campaign data for user's scope
@@ -81,6 +84,11 @@ Brand (e.g., "Acme")
 - `POST /upload/{campaigns,leads,sales}` - CSV upload (multipart/form-data)
 
 ## Notable Design Decisions
-- Authentication removed for demo simplicity (JWT setup exists but not enforced)
+- Authentication removed for demo simplicity
 - All data tables are client components using `useEffect` for fetching
 - CSV upload determines endpoint from filename pattern
+- CSV uploads use UPSERT (`ON CONFLICT`) to prevent duplicate data:
+  - Campaigns: unique on `(location_id, campaign_name, channel, date)`
+  - Leads: unique on `(location_id, email)`
+  - Sales: unique on `(location_id, product_category, date)`
+- User switching is available via button in the dashboard header

@@ -30,19 +30,26 @@ Full-stack demo showing CSV ingestion, multi-tenant data isolation, and reportin
 - **CSV Upload:** Upload CSV files for campaigns, leads, or sales to update the database  
 - **Multi-Tenant Scoping:** Data is filtered based on brand/company  
 
+## Database Schema
+The full PostgreSQL schema is available in `schema.sql` at the project root. This can be used to recreate the database from scratch.
+
 ## Running Locally
 To run the full-stack dashboard locally, follow these steps:
 
-### 1. Start the Backend
+### 1. Set Up the Database
+- Create a PostgreSQL database called `marketing_dashboard`
+- Run `schema.sql` to create all tables
+
+### 2. Start the Backend
 - Open a terminal and navigate to the backend folder:
 - cd backend
 - npm install
 - npm run dev
 - The backend API will be running on: http://localhost:5000
 
-### 1. Start the Frontend
-- Open a terminal and navigate to the backend folder:
-- cd Frontend
+### 3. Start the Frontend
+- Open a terminal and navigate to the frontend folder:
+- cd frontend
 - npm install
 - npm run dev
 - The frontend will be available at: http://localhost:3000
@@ -59,8 +66,8 @@ To run the full-stack dashboard locally, follow these steps:
 
 ## Key Decisions and Trade-offs
 
-- **Removed Authentication for Simplicity**  
-  For the take-home assessment, JWT-based token login was not used in order to simplify the flow. This allows direct access to endpoints without tokens.
+- **Removed Authentication for Simplicity**
+  JWT-based token login was not used in order to simplify the flow. This allows direct access to endpoints without tokens.
 
 - **Multi-Tenant Scoping at Query Layer**  
   Multi-tenancy is enforced via SQL query filters (`brandId` and `companyId`) instead of middleware or per-user database roles.  
@@ -74,8 +81,8 @@ To run the full-stack dashboard locally, follow these steps:
   Users are selected via a `UserSwitcher` component and stored in context. All data fetches are scoped based on this selection.  
   *Trade-off:* No real authentication; user context must be manually managed.
 
-- **CSV Upload Handling**  
-  Uploads are handled by `UploadCsv` component with dynamic POST endpoints per table.  
+- **CSV Upload Handling**
+  Uploads are handled by `UploadCsv` component with dynamic POST endpoints per table. Duplicate uploads are handled via UPSERT (`ON CONFLICT`) with unique constraints per table.
   *Trade-off:* Simplifies testing and demonstration but not production-ready.
 
 - **Simplified Frontend Data Fetching**  
