@@ -56,13 +56,36 @@ To run the full-stack dashboard locally, follow these steps:
 
 ## API Endpoints
 - GET /api/users
-- GET /dashboard/campaigns?brandId=<id>&companyId=<id>
-- GET /dashboard/leads?brandId=<id>&companyId=<id>
-- GET /dashboard/sales?brandId=<id>&companyId=<id>
-- GET /dashboard/roi?brandId=<id>&companyId=<id>
+- GET /dashboard/campaigns?brandId=&lt;id&gt;&companyId=&lt;id&gt;
+- GET /dashboard/leads?brandId=&lt;id&gt;&companyId=&lt;id&gt;
+- GET /dashboard/sales?brandId=&lt;id&gt;&companyId=&lt;id&gt;
+- GET /dashboard/roi?brandId=&lt;id&gt;&companyId=&lt;id&gt;
 - POST /upload/campaigns
 - POST /upload/leads
 - POST /upload/sales
+
+### Example curl Commands (Windows Command Prompt)
+```cmd
+:: List users
+curl http://localhost:5000/api/users
+
+:: Health check
+curl http://localhost:5000/health
+
+:: Dashboard data (all, by brand, by company)
+curl http://localhost:5000/dashboard/campaigns
+curl "http://localhost:5000/dashboard/campaigns?brandId=1"
+curl "http://localhost:5000/dashboard/campaigns?brandId=1&companyId=1"
+
+curl "http://localhost:5000/dashboard/leads?brandId=1"
+curl "http://localhost:5000/dashboard/sales?brandId=1"
+curl "http://localhost:5000/dashboard/roi?brandId=1"
+
+:: CSV uploads
+curl -X POST -F "file=@campaigns.csv" http://localhost:5000/upload/campaigns
+curl -X POST -F "file=@leads.csv" http://localhost:5000/upload/leads
+curl -X POST -F "file=@sales.csv" http://localhost:5000/upload/sales
+```
 
 ## Key Decisions and Trade-offs
 
