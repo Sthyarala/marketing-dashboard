@@ -4,10 +4,23 @@
 Full-stack demo showing CSV ingestion, multi-tenant data isolation, and reporting.
 
 ## Tech Stack
-- **Frontend:** Next.js 16 (App Router), TypeScript, React  
-- **Backend:** Node.js, Express, PostgreSQL  
-- **Database:** PostgreSQL (managed via `pgAdmin`)  
-- **CSV Upload:** Supports ingesting new campaign, lead, or sales data  
+
+### Frontend
+- **Next.js 16** with App Router — React framework. Used primarily as a client-side SPA since all components are client components (`'use client'`). The App Router handles page routing (`/` and `/dashboard`).
+- **React 19** — UI rendering. Uses Context API for user state, `useState`/`useEffect` for data fetching and tab management.
+- **TypeScript** — Type safety across components and interfaces (e.g., `AppUser`, `Tab` type).
+- **Inline styles** — All component styling uses inline `style` props.
+
+### Backend
+- **Express.js** — HTTP server handling REST endpoints. Routes are organized by resource (`/dashboard/campaigns`, `/upload/leads`, etc.).
+- **TypeScript** — Same language across the full stack.
+- **pg (node-postgres)** — PostgreSQL client using a connection pool (`Pool`). All queries are raw parameterized SQL, no ORM.
+- **Multer** — Middleware for handling multipart file uploads. Saves CSVs to a temp `uploads/` directory, which are cleaned up after processing.
+- **ts-node-dev** — Development server with hot reload on file changes.
+
+### Database
+- **PostgreSQL 18** — Relational database with 7 tables (`brands`, `companies`, `locations`, `campaigns`, `leads`, `sales`, `users`). Uses foreign keys to enforce the Brand → Company → Location hierarchy, and unique constraints for UPSERT deduplication.
+- **pgAdmin** — Used for database administration and schema management.
 
 ## Users / Access
 | Username | Role | Scope |
