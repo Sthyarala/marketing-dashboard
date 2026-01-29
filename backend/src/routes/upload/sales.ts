@@ -25,6 +25,7 @@ router.post('/', upload.single('file'), async (req, res) => {
         brandName,
         companyName,
         locationExternalId,
+        email,
         productCategory,
         revenue,
         quantity,
@@ -73,8 +74,8 @@ router.post('/', upload.single('file'), async (req, res) => {
       await client.query(
         `
         INSERT INTO sales
-          (location_id, product_category, revenue, quantity, date)
-        VALUES ($1, $2, $3, $4, $5)
+          (location_id, email, product_category, revenue, quantity, date)
+        VALUES ($1, $2, $3, $4, $5, $6)
         ON CONFLICT (location_id, product_category, date)
         DO UPDATE SET
           revenue = EXCLUDED.revenue,
@@ -82,6 +83,7 @@ router.post('/', upload.single('file'), async (req, res) => {
         `,
         [
           locationId,
+          email,
           productCategory,
           parseFloat(revenue),
           parseInt(quantity),

@@ -6,6 +6,7 @@ interface Sale {
   brand_name: string;
   company_name: string;
   location_id: string;
+  email: string;
   product_category: string;
   revenue: number;
   quantity: number;
@@ -40,6 +41,7 @@ export default function SalesTable({ brandId, companyId }: Props) {
           <th>Brand</th>
           <th>Company</th>
           <th>Location</th>
+          <th>email</th>
           <th>Product</th>
           <th>Revenue</th>
           <th>Quantity</th>
@@ -52,6 +54,7 @@ export default function SalesTable({ brandId, companyId }: Props) {
             <td>{s.brand_name}</td>
             <td>{s.company_name}</td>
             <td>{s.location_id}</td>
+            <td>{s.email}</td>
             <td>{s.product_category}</td>
             <td>{s.revenue}</td>
             <td>{s.quantity}</td>

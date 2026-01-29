@@ -12,6 +12,7 @@ router.get('/', async (req, res) => {
         b.name AS brand_name,
         c.name AS company_name,
         l.external_id AS location_id,
+        s.email,
         s.product_category,
         s.revenue,
         s.quantity,
